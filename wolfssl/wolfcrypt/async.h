@@ -39,7 +39,7 @@
 struct WC_ASYNC_DEV;
 
 
-/* Asyncronous Crypt Tests */
+/* Asynchronous Crypt Tests */
 #ifdef WOLFSSL_ASYNC_CRYPT_TEST
     enum WC_ASYNC_TEST_TYPE {
         ASYNC_TEST_NONE             = 0,
@@ -231,7 +231,9 @@ struct WC_ASYNC_DEV;
 #elif defined(HAVE_INTEL_QA)
     #define WOLF_ASYNC_MAX_PENDING  QAT_MAX_PENDING
 #else
+    #ifndef WOLF_ASYNC_MAX_PENDING
     #define WOLF_ASYNC_MAX_PENDING  8
+    #endif
 
     #ifdef DEBUG_WOLFSSL
         /* Use this to introduce extra delay in simulator at interval */

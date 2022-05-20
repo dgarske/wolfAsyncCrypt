@@ -279,6 +279,8 @@ static int wolfAsync_crypt_test(WC_ASYNC_DEV* asyncDev)
             break;
     };
 
+    printf("Finished worker async %p\n", testDev);
+
     /* Reset test type */
     testDev->type = ASYNC_TEST_NONE;
 
@@ -332,6 +334,90 @@ int wolfAsync_DevOpenThread(int *pDevId, void* threadId)
     return ret;
 }
 
+#ifndef WC_NO_ASYNC_THREADING
+
+typedef struct {
+    int index;
+    int stopThread;
+    pthread_t threadId;
+} AsyncWorkerInfo;
+static WOLF_EVENT_QUEUE asyncQueue;
+static int              asyncWorkerCount;
+static AsyncWorkerInfo* asyncWorkerInfo;
+
+static void* wolfAsync_WorkerThread(void* context)
+{
+    int ret;
+    AsyncWorkerInfo* info = (AsyncWorkerInfo*)context;
+
+    /* wait for worker item to be added to queue */
+    while (!info->stopThread) {
+        WOLF_EVENT* event = NULL;
+        ret = wolfEventQueue_Pop(&asyncQueue, &event);
+        if (ret == 0 && event != NULL) {
+            ret = wolfEvent_Poll(event, WOLF_POLL_FLAG_CHECK_HW);
+        }
+        if (ret != 0) {
+            fprintf(stderr, "Worker error %d\n", ret);
+        }
+
+        if (event == NULL) {
+            /* until we wait on signal, do lazy sleep */
+            wc_AsyncSleep(1);
+        }
+    }
+    pthread_exit(NULL);
+}
+
+static int wolfAsync_WorkersCreate(void)
+{
+    int ret = 0, i;
+
+    asyncWorkerCount = wc_AsyncGetNumberOfCpus();
+    if (asyncWorkerCount <= 0) {
+        asyncWorkerCount = WOLF_ASYNC_MAX_PENDING;
+    }
+
+    asyncWorkerInfo = (AsyncWorkerInfo*)XMALLOC(
+        sizeof(AsyncWorkerInfo)*asyncWorkerCount,
+        NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    if (asyncWorkerInfo == NULL) {
+        return MEMORY_E;
+    }
+
+    wolfEventQueue_Init(&asyncQueue);
+
+    for (i=0; i<asyncWorkerCount; i++) {
+        AsyncWorkerInfo* info = &asyncWorkerInfo[i];
+        info->index = i;
+        ret = wc_AsyncThreadCreate(&info->threadId, wolfAsync_WorkerThread,
+            info);
+        if (ret != 0) {
+            fprintf(stderr, "Failed create worker thread!\n");
+            break;
+        }
+    }
+    return ret;
+}
+
+static void wolfAsync_WorkersStop(void)
+{
+    int i;
+
+    /* join worker threads */
+    for (i=0; i<asyncWorkerCount; i++) {
+        AsyncWorkerInfo* info = &asyncWorkerInfo[i];
+        info->stopThread = 1; /* signal worker to stop */
+        pthread_join(info->threadId, 0);
+    }
+
+    /* cleanup */
+    XFREE(asyncWorkerInfo, NULL, DYNAMIC_TYPE_TMP_BUFFER);
+    asyncWorkerInfo = NULL;
+    wolfEventQueue_Free(&asyncQueue);
+}
+#endif /* WC_NO_ASYNC_THREADING */
+
 int wolfAsync_HardwareStart(void)
 {
     int ret = 0;
@@ -340,6 +426,10 @@ int wolfAsync_HardwareStart(void)
         /* nothing to do */
     #elif defined(HAVE_INTEL_QA)
         ret = IntelQaHardwareStart(QAT_PROCESS_NAME, QAT_LIMIT_DEV_ACCESS);
+    #elif defined(WOLFSSL_ASYNC_CRYPT_TEST)
+        #ifndef WC_NO_ASYNC_THREADING
+            wolfAsync_WorkersCreate(); /* start worker thread(s) */
+        #endif
     #endif
 
     return ret;
@@ -351,6 +441,10 @@ void wolfAsync_HardwareStop(void)
         /* nothing to do */
     #elif defined(HAVE_INTEL_QA)
         IntelQaHardwareStop();
+    #elif defined(WOLFSSL_ASYNC_CRYPT_TEST)
+        #ifndef WC_NO_ASYNC_THREADING
+            wolfAsync_WorkersStop(); /* stop worker thread(s) */
+        #endif
     #endif
 }
 
@@ -466,6 +560,13 @@ int wolfAsync_EventQueuePush(WOLF_EVENT_QUEUE* queue, WOLF_EVENT* event)
 
     /* Setup event and push to event queue */
     event->dev.async = wolfAsync_GetDev(event);
+
+#if defined(WOLFSSL_ASYNC_CRYPT_TEST) && !defined(WC_NO_ASYNC_THREADING)
+    /* Send event to worker thread */
+    printf("Adding worker async %p\n", &event->dev.async->test);
+    wolfEventQueue_Push(&asyncQueue, event);
+#endif
+
     return wolfEventQueue_Push(queue, event);
 }
 
@@ -623,7 +724,7 @@ int wolfAsync_EventQueuePoll(WOLF_EVENT_QUEUE* queue, void* context_filter,
     }
 
 #ifndef SINGLE_THREADED
-    /* In single threaded mode "event_queue.lock" doesn't exist */
+    /* In single threaded mode "queue->lock" doesn't exist */
     if ((ret = wc_LockMutex(&queue->lock)) != 0) {
         return ret;
     }
@@ -672,13 +773,15 @@ int wolfAsync_EventQueuePoll(WOLF_EVENT_QUEUE* queue, void* context_filter,
                     }
 
                 #elif defined(WOLFSSL_ASYNC_CRYPT_TEST)
-                    #ifdef WOLF_ASYNC_TEST_SKIP_MOD
-                        /* Simulate random hardware not done */
-                        if (count % WOLF_ASYNC_TEST_SKIP_MOD)
+                    #ifdef WC_NO_ASYNC_THREADING
+                        #ifdef WOLF_ASYNC_TEST_SKIP_MOD
+                            /* Simulate random hardware not done */
+                            if (count % WOLF_ASYNC_TEST_SKIP_MOD)
+                        #endif
+                            {
+                                event->ret = wolfAsync_crypt_test(asyncDev);
+                            }
                     #endif
-                        {
-                            event->ret = wolfAsync_crypt_test(asyncDev);
-                        }
                 #else
                     #warning No async crypt hardware defined!
                 #endif
@@ -864,7 +967,8 @@ int wc_AsyncGetNumberOfCpus(void)
 {
     int numCpus;
 
-    numCpus = (int)sysconf(_SC_NPROCESSORS_ONLN);
+    //numCpus = (int)sysconf(_SC_NPROCESSORS_ONLN);
+    numCpus = 1;
 
     return numCpus;
 }
