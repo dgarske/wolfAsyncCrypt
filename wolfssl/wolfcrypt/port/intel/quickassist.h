@@ -24,6 +24,8 @@
 
 #ifdef HAVE_INTEL_QA
 
+#include <wolfssl/wolfcrypt/types.h> /* for MATH_INT_T */
+
 #include "cpa.h"
 #include "cpa_cy_im.h"
 #include "cpa_cy_sym.h"
@@ -178,17 +180,6 @@ typedef void (*IntelQaFreeFunc)(struct WC_ASYNC_DEV*);
         QAT_PRIME_CHK_STATUS_PASSED,
         QAT_PRIME_CHK_STATUS_ERROR,
     };
-#endif
-
-#if defined(WOLFSSL_SP_MATH) || defined(WOLFSSL_SP_MATH_ALL)
-    struct sp_int;
-    #define MATH_INT_T struct sp_int
-#elif defined(USE_FAST_MATH)
-    struct fp_int;
-    #define MATH_INT_T struct fp_int
-#else
-    struct mp_int;
-    #define MATH_INT_T struct mp_int
 #endif
 
 /* QuickAssist device */
