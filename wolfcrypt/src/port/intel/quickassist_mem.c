@@ -207,7 +207,8 @@ typedef struct qaeMemHeader {
 #ifndef QAT_V2
 #ifdef USE_QAE_STATIC_MEM
     /* Use an array instead of a list */
-    static QAE_THREAD_LS qae_dev_mem_info_ex_t* g_pUserMemList[QAE_USER_MEM_MAX_COUNT];
+    static QAE_THREAD_LS qae_dev_mem_info_ex_t*
+        g_pUserMemList[QAE_USER_MEM_MAX_COUNT];
     /* cache the available sizes to improve userMemLookupBySize performance */
     static QAE_THREAD_LS uint16_t g_avail_size[QAE_USER_MEM_MAX_COUNT];
     /* Count of items in g_pUserMemList and g_avail_size */
@@ -574,7 +575,8 @@ void* IntelQaRealloc(void *ptr, size_t size, void* heap, int type
                 if (header->threadId != pthread_self()) {
                     allocNew = 1;
                 #if 0
-                    printf("Realloc %p from different thread! orig %lx this %lx\n",
+                    printf("Realloc %p from different thread! "
+                           "orig %lx this %lx\n",
                         origPtr, header->threadId, pthread_self());
                 #endif
                 }
@@ -630,7 +632,8 @@ void* IntelQaRealloc(void *ptr, size_t size, void* heap, int type
     }
     else {
         printf("Realloc: Reuse %p (%u) at %s:%d, heap %p, type %d, count %d\n",
-             origPtr, (unsigned int)size, func, line, header->heap, header->type, header->count);
+             origPtr, (unsigned int)size, func, line,
+             header->heap, header->type, header->count);
     }
 #else
     (void)func;
@@ -673,13 +676,16 @@ void ShowMemoryTracker(void)
 
             /* print list of allocations */
             qaeMemHeader* header;
-            for (header = g_memList.head; header != NULL; header = header->next) {
+            for (header = g_memList.head;
+                 header != NULL;
+                 header = header->next) {
                 printf("Leak: Ptr %p, Size %u, Type %d, Heap %p"
                 #ifdef WOLFSSL_DEBUG_MEMORY
                     ", Func %s, Line %d"
                 #endif
                     "\n",
-                    (byte*)header + sizeof(qaeMemHeader), (unsigned int)header->size,
+                    (byte*)header + sizeof(qaeMemHeader),
+                    (unsigned int)header->size,
                     header->type, header->heap
                 #ifdef WOLFSSL_DEBUG_MEMORY
                     , header->func, header->line
@@ -729,7 +735,8 @@ void qaeMemDestroy(void)
 
 static CpaStatus userMemListAdd(qae_dev_mem_info_t *pMemInfo)
 {
-    qae_dev_mem_info_ex_t* pMemInfoEx = (qae_dev_mem_info_ex_t*)pMemInfo->virt_addr;
+    qae_dev_mem_info_ex_t* pMemInfoEx =
+        (qae_dev_mem_info_ex_t*)pMemInfo->virt_addr;
 
     if (g_userMemListCount >= QAE_USER_MEM_MAX_COUNT) {
         return MEM_INVALID_IDX;
@@ -798,7 +805,8 @@ static qae_dev_mem_info_t* userMemLookupByVirtAddr(void* virt_addr,
         (page_offset << SYSTEM_PAGE_SHIFT));
     pMemInfoEx = (qae_dev_mem_info_ex_t*)pageVirtAddr;
 
-    /* Find the index in g_pUserMemList stored directly in qae_dev_mem_info_ex_t */
+    /* Find the index in g_pUserMemList stored directly in
+     * qae_dev_mem_info_ex_t */
     memIdx = pMemInfoEx->index;
     if (memIdx < 0 || memIdx >= g_userMemListCount) {
         printf("userMemIndex out of bounds: %d\n", memIdx);
@@ -922,13 +930,15 @@ static void* qaeMemAllocNUMA(Cpa32U size, Cpa32U node, Cpa32U alignment,
         )) != NULL)
     {
         /* calculate address */
-        pOriginalAddress = (void*)((QAE_UINT)pMemInfo->virt_addr + (QAE_UINT)(pMemInfo->size - pMemInfo->available_size));
+        pOriginalAddress = (void*)((QAE_UINT)pMemInfo->virt_addr +
+            (QAE_UINT)(pMemInfo->size - pMemInfo->available_size));
         /* calculate aligned address */
         padding = (QAE_UINT)pOriginalAddress % alignment;
         aligned_address = ((QAE_UINT)pOriginalAddress) - padding + alignment;
 
         /* reduce available size */
-        pMemInfo->available_size -= (size + (aligned_address - (QAE_UINT)pOriginalAddress));
+        pMemInfo->available_size -= (size + (aligned_address -
+            (QAE_UINT)pOriginalAddress));
         pMemInfo->allocations += 1;
 
     #ifdef USE_QAE_STATIC_MEM
@@ -936,7 +946,8 @@ static void* qaeMemAllocNUMA(Cpa32U size, Cpa32U node, Cpa32U alignment,
         g_avail_size[memIdx] = pMemInfo->available_size;
     #endif
 
-        *p_page_offset = (word16)((QAE_UINT)aligned_address >> SYSTEM_PAGE_SHIFT) -
+        *p_page_offset = (word16)(
+             (QAE_UINT)aligned_address >> SYSTEM_PAGE_SHIFT) -
             ((QAE_UINT)pMemInfo->virt_addr >> SYSTEM_PAGE_SHIFT);
 
         return (void*)aligned_address;
@@ -964,7 +975,8 @@ static void* qaeMemAllocNUMA(Cpa32U size, Cpa32U node, Cpa32U alignment,
 
     ret = ioctl(g_qaeMemFd, DEV_MEM_IOC_MEMALLOC, pMemInfo);
     if (ret != 0) {
-        printf("ioctl call failed: ret %d, errno %d (%s)\n", ret, errno, strerror(errno));
+        printf("ioctl call failed: ret %d, errno %d (%s)\n",
+            ret, errno, strerror(errno));
         return NULL;
     }
 
@@ -976,7 +988,8 @@ static void* qaeMemAllocNUMA(Cpa32U size, Cpa32U node, Cpa32U alignment,
         printf("mmap failed\n");
         ret = ioctl(g_qaeMemFd, DEV_MEM_IOC_MEMFREE, pMemInfo);
         if (ret != 0) {
-            printf("ioctl call failed: ret %d, errno %d (%s)\n", ret, errno, strerror(errno));
+            printf("ioctl call failed: ret %d, errno %d (%s)\n",
+                ret, errno, strerror(errno));
         }
     #ifndef USE_QAE_STATIC_MEM
         free(pMemInfo);
@@ -1094,7 +1107,8 @@ QAE_PHYS_ADDR qaeVirtToPhysNUMA(void* pVirtAddress)
         return (QAE_PHYS_ADDR)0;
     }
 
-    pVirtPageAddress = ((int *)((((QAE_UINT)pVirtAddress)) & (SYSTEM_PAGE_MASK)));
+    pVirtPageAddress = ((int *)(((
+        (QAE_UINT)pVirtAddress)) & (SYSTEM_PAGE_MASK)));
 
     offset = (QAE_UINT)pVirtAddress - (QAE_UINT)pVirtPageAddress;
     do {
@@ -1104,7 +1118,8 @@ QAE_PHYS_ADDR qaeVirtToPhysNUMA(void* pVirtAddress)
             (pMemInfo->virt_addr == pVirtPageAddress)) {
             break;
         }
-        pVirtPageAddress = (void*)((QAE_UINT)pVirtPageAddress - SYSTEM_PAGE_SIZE);
+        pVirtPageAddress = (void*)(
+            (QAE_UINT)pVirtPageAddress - SYSTEM_PAGE_SIZE);
 
         offset += SYSTEM_PAGE_SIZE;
      } while (pMemInfo->virt_addr != pVirtPageAddress);

@@ -484,7 +484,7 @@ static int wolfAsync_NitroxCheckReq(WC_ASYNC_DEV* asyncDev, WOLF_EVENT* event)
     ret = NitroxCheckRequest(asyncDev, event);
 
 #ifdef WOLFSSL_NITROX_DEBUG
-    if (event->ret == WC_PENDING_E)
+    if (event->ret == WC_NO_ERR_TRACE(WC_PENDING_E))
         event->pendCount++;
     else
         printf("NitroxCheckRequest: ret %x, req %lx, count %u\n",
@@ -496,7 +496,7 @@ static int wolfAsync_NitroxCheckReq(WC_ASYNC_DEV* asyncDev, WOLF_EVENT* event)
 #endif
 
     /* if not pending then clear requestId */
-    if (event->ret != WC_PENDING_E) {
+    if (event->ret != WC_NO_ERR_TRACE(WC_PENDING_E)) {
         event->reqId = 0;
     }
 
@@ -530,7 +530,7 @@ int wolfAsync_EventPoll(WOLF_EVENT* event, WOLF_EVENT_FLAG flags)
     #endif
 
         /* If not pending then mark as done */
-        if (event->ret != WC_PENDING_E) {
+        if (event->ret != WC_NO_ERR_TRACE(WC_PENDING_E)) {
             event->state = WOLF_EVENT_STATE_DONE;
         }
     }
@@ -572,17 +572,18 @@ static int wolfAsync_NitroxCheckMultiReqBuf(WC_ASYNC_DEV* asyncDev,
                             multi_req->req[i].status);
 
                     #ifdef WOLFSSL_NITROX_DEBUG
-                        if (event->ret == WC_PENDING_E)
+                        if (event->ret == WC_NO_ERR_TRACE(WC_PENDING_E))
                             event->pendCount++;
                         else
-                            printf("NitroxCheckRequests: ret %x, req %lx, count %u\n",
+                            printf("NitroxCheckRequests: "
+                                "ret %x, req %lx, count %u\n",
                                 multi_req->req[i].status,
                                 multi_req->req[i].request_id,
                                 event->pendCount);
                     #endif
 
                         /* If not pending then mark as done */
-                        if (event->ret != WC_PENDING_E) {
+                        if (event->ret != WC_NO_ERR_TRACE(WC_PENDING_E)) {
                             event->state = WOLF_EVENT_STATE_DONE;
                             event->reqId = 0;
                         }
@@ -637,7 +638,8 @@ int wolfAsync_EventQueuePoll(WOLF_EVENT_QUEUE* queue, void* context_filter,
                 event->type <= WOLF_EVENT_TYPE_ASYNC_LAST)
             {
                 /* optional filter based on context */
-                if (context_filter == NULL || event->context == context_filter) {
+                if (context_filter == NULL ||
+                    event->context == context_filter) {
                     asyncDev = event->dev.async;
 
                     if (asyncDev == NULL) {
@@ -665,7 +667,8 @@ int wolfAsync_EventQueuePoll(WOLF_EVENT_QUEUE* queue, void* context_filter,
                     }
             #else
                 #if defined(HAVE_INTEL_QA)
-                    /* poll QAT hardware, callback returns data, IntelQaPoll sets event */
+                    /* poll QAT hardware, callback returns data,
+                     * IntelQaPoll sets event */
                     ret = IntelQaPoll(asyncDev);
                     if (ret != 0) {
                         break;
@@ -687,7 +690,7 @@ int wolfAsync_EventQueuePoll(WOLF_EVENT_QUEUE* queue, void* context_filter,
                 #endif
 
                     /* If not pending then mark as done */
-                    if (event->ret != WC_PENDING_E) {
+                    if (event->ret != WC_NO_ERR_TRACE(WC_PENDING_E)) {
                         event->state = WOLF_EVENT_STATE_DONE;
                     }
             #endif
@@ -782,7 +785,7 @@ int wolfAsync_EventWait(WOLF_EVENT* event)
     }
 
     /* wait for completion */
-    while (ret == 0 && event->ret == WC_PENDING_E) {
+    while (ret == 0 && event->ret == WC_NO_ERR_TRACE(WC_PENDING_E)) {
         ret = wolfAsync_EventPoll(event, WOLF_POLL_FLAG_CHECK_HW);
     }
 
@@ -817,7 +820,7 @@ int wc_AsyncHandle(WC_ASYNC_DEV* asyncDev, WOLF_EVENT_QUEUE* queue,
 
 int wc_AsyncWait(int ret, WC_ASYNC_DEV* asyncDev, word32 event_flags)
 {
-    if (ret == WC_PENDING_E) {
+    if (ret == WC_NO_ERR_TRACE(WC_PENDING_E)) {
         WOLF_EVENT* event;
 
         if (asyncDev == NULL)
@@ -1059,7 +1062,8 @@ int wc_AsyncThreadPrioritySet(pthread_t *thread, word32 priority)
 
     status = pthread_getschedparam(*thread, &policy, &param);
     if (status != 0) {
-        fprintf(stderr, "pthread_getschedparam, failed with status %d\n", status);
+        fprintf(stderr, "pthread_getschedparam, failed with status %d\n",
+            status);
         return status;
     }
 
@@ -1075,7 +1079,8 @@ int wc_AsyncThreadPrioritySet(pthread_t *thread, word32 priority)
 
     status = pthread_setschedparam(*thread, policy, &param);
     if (status != 0) {
-        fprintf(stderr, "pthread_setschedparam, failed with status %d\n", status);
+        fprintf(stderr, "pthread_setschedparam, failed with status %d\n",
+            status);
         return status;
     }
 
@@ -1097,7 +1102,8 @@ int wc_AsyncThreadSetPolicyAndPriority(pthread_t *thread, word32 policy,
         (policy != SCHED_FIFO) &&
         (policy != SCHED_OTHER))
     {
-        fprintf(stderr, "wc_AsyncThreadSetPolicyAndPriority: invalid policy %u\n", policy);
+        fprintf(stderr, "wc_AsyncThreadSetPolicyAndPriority: "
+            "invalid policy %u\n", policy);
         return BAD_FUNC_ARG;
     }
 
