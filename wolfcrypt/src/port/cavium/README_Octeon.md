@@ -18,7 +18,7 @@ The installation requires the OCTEON_MODEL environment variable
 to be set. To set this environment variable, cd to the
 /usr/local/Cavium_Networks/OCTEON-SDK directory, and invoke
 
-	  source env-setup <OCTEON_MODEL>
+    source env-setup <OCTEON_MODEL>
 
 script. Valid OCTEON_MODELs are listed in octeon-models.txt file
 under OCTEON-SDK directory.
@@ -201,9 +201,9 @@ ln -s ../../wolfssl wolfssl
 cd wolfssl
 ./autogen.sh
 ./configure --host=mips64 CC="mips64-octeon-linux-gnu-gcc -mabi=64" \
-	--with-octeon-sync=../OCTEON-SDK OCTEON_OBJ=obj-octeon3 \
-	--enable-cryptocb --enable-des3 CPPFLAGS="-DWOLFSSL_AES_DIRECT" \
-	CFLAGS="-Wno-error=redundant-decls"
+    --with-octeon-sync=../OCTEON-SDK OCTEON_OBJ=obj-octeon3 \
+    --enable-cryptocb --enable-des3 CPPFLAGS="-DWOLFSSL_AES_DIRECT" \
+    CFLAGS="-Wno-error=redundant-decls"
 make
 
 ```
@@ -222,7 +222,7 @@ cp -r certs /run/media/dgarske/OCTEON/
 
 ### UART and Telnet
 
-EBB7304_DEFAULT	D8-80-39-7D-6D-0B
+EBB7304_DEFAULT    D8-80-39-7D-6D-0B
 
 telnet 192.168.0.114 9760
 telnet 192.168.0.114 9761

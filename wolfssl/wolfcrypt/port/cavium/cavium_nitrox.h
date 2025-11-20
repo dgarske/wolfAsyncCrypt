@@ -78,10 +78,10 @@ typedef struct CspMultiRequestStatusBuffer CspMultiRequestStatusBuffer;
 
 
 typedef struct CaviumNitroxDev {
-    CspHandle      devId;                      /* nitrox device id */
-    context_type_t type;                       /* Typically CONTEXT_SSL, but also ECC types */
-    word64         contextHandle;              /* nitrox context memory handle */
-    CavReqId       reqId;                      /* Current requestId */
+    CspHandle      devId;         /* nitrox device id */
+    context_type_t type;          /* Typically CONTEXT_SSL, but also ECC types*/
+    word64         contextHandle; /* nitrox context memory handle */
+    CavReqId       reqId;         /* Current requestId */
 } CaviumNitroxDev;
 
 struct WOLF_EVENT;
@@ -99,7 +99,8 @@ WOLFSSL_LOCAL void NitroxFreeContext(struct WC_ASYNC_DEV* dev);
 WOLFSSL_LOCAL void NitroxCloseDevice(CspHandle devId);
 
 #if defined(WOLFSSL_ASYNC_CRYPT)
-WOLFSSL_LOCAL int NitroxCheckRequest(struct WC_ASYNC_DEV* dev, struct WOLF_EVENT* event);
+WOLFSSL_LOCAL int NitroxCheckRequest(struct WC_ASYNC_DEV* dev,
+    struct WOLF_EVENT* event);
 WOLFSSL_LOCAL int NitroxCheckRequests(struct WC_ASYNC_DEV* dev,
     CspMultiRequestStatusBuffer* req_stat_buf);
 #endif /* WOLFSSL_ASYNC_CRYPT */
@@ -207,7 +208,8 @@ WOLFSSL_LOCAL int NitroxCheckRequests(struct WC_ASYNC_DEV* dev,
 #endif /* NO_HMAC */
 
 struct WC_RNG;
-WOLFSSL_API int NitroxRngGenerateBlock(struct WC_RNG* rng, byte* output, word32 sz);
+WOLFSSL_API int NitroxRngGenerateBlock(struct WC_RNG* rng, byte* output,
+    word32 sz);
 
 
 #endif /* HAVE_CAVIUM */

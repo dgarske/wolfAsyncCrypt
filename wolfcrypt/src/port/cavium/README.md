@@ -28,26 +28,26 @@ Device count: 1  Config file device count: 2
  NITROX Model: 0x1200 [ CNN55XX PASS 1.0 ]
 
  Microcode Details:
-	Version : CNN5x-MC-AE-MAIN-0001
-	Core Count : 80
-	Code length : 9514
-	Block number: 0
+    Version : CNN5x-MC-AE-MAIN-0001
+    Core Count : 80
+    Code length : 9514
+    Block number: 0
 
  Microcode Details:
-	Version : CNN5x-MC-SE-SSL-0004
-	Core Count : 64
-	Code length : 23738
-	Block number: 1
+    Version : CNN5x-MC-SE-SSL-0004
+    Core Count : 64
+    Code length : 23738
+    Block number: 1
 
  Microcode Load Succeed on device: 0
 
  [ AE ] Microcode: CNN5x-MC-AE-MAIN-0001
-	Group : 0
-	Core Mask [Hi Low]: ffff ffffffffffffffff [ 80 ]
+    Group : 0
+    Core Mask [Hi Low]: ffff ffffffffffffffff [ 80 ]
 
  [ SE ] Microcode: CNN5x-MC-SE-SSL-0004
-	Group : 0
-	Core Mask : ffffffffffffffff [ 64 ]
+    Group : 0
+    Core Mask : ffffffffffffffff [ 64 ]
 
 Microcode Load success
 ```
@@ -67,7 +67,7 @@ a. Modify `include/vf_defs.h:120` -> `vf_config_mode_str()` function to:
 ```c
 static inline const char *vf_config_mode_str(vf_config_type_t vf_mode)
 {
-	const char *vf_mode_str;
+    const char *vf_mode_str;
 ```
 
 b. Add `case PF:` to `include/vf_defs.h:82` above `default:` in `vf_config_mode_to_num_vfs()`.
@@ -88,9 +88,9 @@ Resolve Links:
 cd microcode
 rm main_asym.out
 ln -s ./build/main_ae.out ./main_asym.out
-rm main_ipsec.out 
+rm main_ipsec.out
 ln -s ./build/main_ipsec.out ./main_ipsec.out
-rm main_ssl.out 
+rm main_ssl.out
 ls -s ./build/main_ssl.out ./main_ssl.out
 ```
 
@@ -141,7 +141,7 @@ sudo ./wolfcrypt/test/testwolfcrypt
 ```c
 /* GLOBAL DEVICE IDENTIFIER */
 #ifdef WOLFSSL_ASYNC_CRYPT
-	static int devId = INVALID_DEVID;
+    static int devId = INVALID_DEVID;
 #endif
 
 
@@ -156,21 +156,21 @@ sudo ./wolfcrypt/test/testwolfcrypt
 
 /* DONE IN YOUR WORKER LOOP IN WC_PENDING_E CASES AGAINST YOUR WOLFSSL_CTX */
 #ifdef WOLFSSL_ASYNC_CRYPT
-	int ret;
+    int ret;
     WOLF_EVENT* wolfEvents[MAX_WOLF_EVENTS];
     int eventCount, i;
 
     /* get list of events that are done (not pending) */
-	ret = wolfSSL_CTX_AsyncPoll(ctx, wolfEvents, MAX_WOLF_EVENTS, WOLF_POLL_FLAG_CHECK_HW, &eventCount);
-	if (ret != 0)
-		goto error;
+    ret = wolfSSL_CTX_AsyncPoll(ctx, wolfEvents, MAX_WOLF_EVENTS, WOLF_POLL_FLAG_CHECK_HW, &eventCount);
+    if (ret != 0)
+        goto error;
 
-	for (i = 0; i < eventCount; i++) {
-		WOLFSSL* ssl = (WOLFSSL*)wolfEvents[i]->context;
-		if (ssl) {
-			/* your SSL object is ready to be called again */
-		}
-	}
+    for (i = 0; i < eventCount; i++) {
+        WOLFSSL* ssl = (WOLFSSL*)wolfEvents[i]->context;
+        if (ssl) {
+            /* your SSL object is ready to be called again */
+        }
+    }
 #endif
 
 /* DONE AT CLEANUP */

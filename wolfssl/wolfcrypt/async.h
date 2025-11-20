@@ -39,7 +39,7 @@
 struct WC_ASYNC_DEV;
 
 
-/* Asyncronous crypto using software */
+/* Asynchronous crypto using software */
 #ifdef WOLFSSL_ASYNC_CRYPT_SW
     enum WC_ASYNC_SW_TYPE {
         ASYNC_SW_NONE             = 0,
@@ -371,18 +371,24 @@ WOLFSSL_API int wolfAsync_HardwareStart(void);
 WOLFSSL_API void wolfAsync_HardwareStop(void);
 WOLFSSL_API int wolfAsync_DevOpen(int *devId);
 WOLFSSL_API int wolfAsync_DevOpenThread(int *devId, void* threadId);
-WOLFSSL_API int wolfAsync_DevCtxInit(WC_ASYNC_DEV* asyncDev, word32 marker, void* heap, int devId);
+WOLFSSL_API int wolfAsync_DevCtxInit(WC_ASYNC_DEV* asyncDev, word32 marker,
+    void* heap, int devId);
 WOLFSSL_API void wolfAsync_DevCtxFree(WC_ASYNC_DEV* asyncDev, word32 marker);
 WOLFSSL_API void wolfAsync_DevClose(int *devId);
 WOLFSSL_API int wolfAsync_DevCopy(WC_ASYNC_DEV* src, WC_ASYNC_DEV* dst);
 
-WOLFSSL_API int wolfAsync_EventInit(WOLF_EVENT* event, enum WOLF_EVENT_TYPE type, void* context, word32 flags);
+WOLFSSL_API int wolfAsync_EventInit(WOLF_EVENT* event,
+    enum WOLF_EVENT_TYPE type, void* context, word32 flags);
 WOLFSSL_API int wolfAsync_EventWait(WOLF_EVENT* event);
-WOLFSSL_API int wolfAsync_EventPoll(WOLF_EVENT* event, WOLF_EVENT_FLAG event_flags);
-WOLFSSL_API int wolfAsync_EventPop(WOLF_EVENT* event, enum WOLF_EVENT_TYPE event_type);
-WOLFSSL_API int wolfAsync_EventQueuePush(WOLF_EVENT_QUEUE* queue, WOLF_EVENT* event);
-WOLFSSL_API int wolfAsync_EventQueuePoll(WOLF_EVENT_QUEUE* queue, void* context_filter,
-    WOLF_EVENT** events, int maxEvents, WOLF_EVENT_FLAG event_flags, int* eventCount);
+WOLFSSL_API int wolfAsync_EventPoll(WOLF_EVENT* event,
+    WOLF_EVENT_FLAG event_flags);
+WOLFSSL_API int wolfAsync_EventPop(WOLF_EVENT* event,
+    enum WOLF_EVENT_TYPE event_type);
+WOLFSSL_API int wolfAsync_EventQueuePush(WOLF_EVENT_QUEUE* queue,
+    WOLF_EVENT* event);
+WOLFSSL_API int wolfAsync_EventQueuePoll(WOLF_EVENT_QUEUE* queue,
+    void* context_filter, WOLF_EVENT** events, int maxEvents,
+    WOLF_EVENT_FLAG event_flags, int* eventCount);
 
 WOLFSSL_API int wc_AsyncHandle(WC_ASYNC_DEV* asyncDev,
     WOLF_EVENT_QUEUE* queue, word32 flags);
@@ -419,8 +425,8 @@ WOLFSSL_API int wc_AsyncThreadStart(pthread_t *thread);
 WOLFSSL_API void wc_AsyncThreadExit(void *retval);
 WOLFSSL_API int wc_AsyncThreadKill(pthread_t *thread);
 WOLFSSL_API int wc_AsyncThreadPrioritySet(pthread_t *thread, word32 priority);
-WOLFSSL_API int wc_AsyncThreadSetPolicyAndPriority(pthread_t *thread, word32 policy,
-    word32 priority);
+WOLFSSL_API int wc_AsyncThreadSetPolicyAndPriority(pthread_t *thread,
+    word32 policy, word32 priority);
 WOLFSSL_API int wc_AsyncThreadJoin(pthread_t *thread);
 WOLFSSL_API void wc_AsyncThreadYield(void);
 WOLFSSL_API pthread_t wc_AsyncThreadId(void);

@@ -56,7 +56,8 @@
     #define QAT_V2
     #if CPA_CY_API_VERSION_NUM_MAJOR > 2 || ( \
             CPA_CY_API_VERSION_NUM_MAJOR == 2 && ( \
-                defined(CPA_CY_API_VERSION_NUM_MINOR) && CPA_CY_API_VERSION_NUM_MINOR >= 4 \
+                defined(CPA_CY_API_VERSION_NUM_MINOR) && \
+                        CPA_CY_API_VERSION_NUM_MINOR >= 4 \
             ) \
         )
         #define QAT_V2_4_PLUS
@@ -65,7 +66,8 @@
 
 #ifdef QAT_V2
     /* quickassist/utilities/libusdm_drv/qae_mem.h */
-    /* Provides user-space API's for accessing NUMA allocated memory through usdm_drv */
+    /* Provides user-space API's for accessing NUMA allocated memory
+     * through usdm_drv */
     #include "qae_mem.h"
 #endif
 
@@ -119,8 +121,9 @@
 #define INVALID_STATUS -256
 
 
-#if !defined(NO_SHA256) || defined(WOLFSSL_SHA512) || defined(WOLFSSL_SHA384) ||\
-    !defined(NO_HMAC) || !defined(NO_MD5) || defined(WOLFSSL_SHA224)
+#if !defined(NO_SHA256) || defined(WOLFSSL_SHA512) || \
+    defined(WOLFSSL_SHA384) || !defined(NO_HMAC) || !defined(NO_MD5) || \
+    defined(WOLFSSL_SHA224)
     #define QAT_ENABLE_HASH
 #endif
 #if !defined(NO_AES) || !defined(NO_DES3)
@@ -291,7 +294,8 @@ typedef struct IntelQaDev {
         struct {
             IntelQaSymCtx ctx;
             CpaBufferList* srcList;
-            byte* tmpIn; /* tmp buffer to hold anything pending less than block size */
+            /* tmp buffer to hold anything pending less than block size */
+            byte* tmpIn;
             word32 tmpInSz;
             word32 tmpInBufSz;
 
@@ -329,7 +333,8 @@ typedef struct IntelQaDev {
 
 
 /* Interface */
-WOLFSSL_LOCAL int IntelQaHardwareStart(const char* process_name, int limitDevAccess);
+WOLFSSL_LOCAL int IntelQaHardwareStart(const char* process_name,
+    int limitDevAccess);
 WOLFSSL_LOCAL void IntelQaHardwareStop(void);
 
 WOLFSSL_LOCAL int IntelQaInit(void* threadId);
@@ -340,7 +345,8 @@ WOLFSSL_LOCAL int IntelQaNumInstances(void);
 WOLFSSL_LOCAL int IntelQaOpen(struct WC_ASYNC_DEV* dev, int devId);
 WOLFSSL_LOCAL void IntelQaClose(struct WC_ASYNC_DEV* dev);
 
-WOLFSSL_LOCAL int IntelQaDevCopy(struct WC_ASYNC_DEV* src, struct WC_ASYNC_DEV* dst);
+WOLFSSL_LOCAL int IntelQaDevCopy(struct WC_ASYNC_DEV* src,
+    struct WC_ASYNC_DEV* dst);
 
 WOLFSSL_LOCAL int IntelQaPoll(struct WC_ASYNC_DEV* dev);
 
@@ -348,8 +354,8 @@ WOLFSSL_LOCAL int IntelQaGetCyInstanceCount(void);
 
 #ifndef NO_RSA
     #ifdef WOLFSSL_KEY_GEN
-    WOLFSSL_LOCAL int IntelQaGenPrime(struct WC_ASYNC_DEV* dev, struct WC_RNG* rng,
-                            byte* primeBuf, word32 primeSz);
+    WOLFSSL_LOCAL int IntelQaGenPrime(struct WC_ASYNC_DEV* dev,
+        struct WC_RNG* rng, byte* primeBuf, word32 primeSz);
     WOLFSSL_LOCAL int IntelQaRsaKeyGen(struct WC_ASYNC_DEV* dev,
                             struct RsaKey* key, int keyBits, long e,
                             struct WC_RNG* rng);
@@ -454,7 +460,8 @@ WOLFSSL_LOCAL int IntelQaGetCyInstanceCount(void);
 #ifdef HAVE_ECC
     #ifdef HAVE_ECC_DHE
         WOLFSSL_LOCAL int IntelQaEccPointMul(struct WC_ASYNC_DEV* dev,
-            struct WC_BIGINT* k, MATH_INT_T* pubX, MATH_INT_T* pubY, MATH_INT_T* pubZ,
+            struct WC_BIGINT* k, MATH_INT_T* pubX, MATH_INT_T* pubY,
+            MATH_INT_T* pubZ,
             struct WC_BIGINT* xG, struct WC_BIGINT* yG,
             struct WC_BIGINT* a, struct WC_BIGINT* b,
             struct WC_BIGINT* q, word32 cofactor);
@@ -504,7 +511,8 @@ WOLFSSL_LOCAL int IntelQaGetCyInstanceCount(void);
         byte* out, const byte* in, word32 sz);
 #endif /* !NO_HMAC */
 
-WOLFSSL_LOCAL int IntelQaDrbg(struct WC_ASYNC_DEV* dev, byte* rngBuf, word32 rngSz);
+WOLFSSL_LOCAL int IntelQaDrbg(struct WC_ASYNC_DEV* dev, byte* rngBuf,
+    word32 rngSz);
 WOLFSSL_LOCAL int IntelQaNrbg(CpaFlatBuffer* pBuffer, Cpa32U length);
 
 #endif /* HAVE_INTEL_QA */

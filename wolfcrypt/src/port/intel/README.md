@@ -92,9 +92,9 @@ For QuickAssist v1.7 or later the newer usdm memory driver is used directly.
 
 ```sh
 $ ./configure --with-intelqa=../QAT --enable-asynccrypt \
-	--enable-aesni --enable-intelasm \
-	--enable-sp --enable-sp-asm \
-	CFLAGS="-DWC_ASYNC_NO_HASH"
+    --enable-aesni --enable-intelasm \
+    --enable-sp --enable-sp-asm \
+    CFLAGS="-DWC_ASYNC_NO_HASH"
 ```
 
 * `--with-intelqa=../QAT`: Enables the Intel QuickAssist mode.

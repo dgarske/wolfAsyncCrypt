@@ -272,16 +272,16 @@ $ sudo ./server-tls-epoll-threaded -n 10000
 $ sudo ./client-tls-perf -n 10000
 
 wolfSSL Server Benchmark 16384 bytes
-	Num Conns         :     10000
-	Total             : 18575.800 ms
-	Total Avg         :     1.858 ms
-	t/s               :   538.335
-	Accept            : 35848.428 ms
-	Accept Avg        :     3.585 ms
-	Total Read bytes  : 163840000 bytes
-	Total Write bytes : 163840000 bytes
-	Read              :   402.212 ms (  388.476 MBps)
-	Write             :   591.469 ms (  264.173 MBps)
+    Num Conns         :     10000
+    Total             : 18575.800 ms
+    Total Avg         :     1.858 ms
+    t/s               :   538.335
+    Accept            : 35848.428 ms
+    Accept Avg        :     3.585 ms
+    Total Read bytes  : 163840000 bytes
+    Total Write bytes : 163840000 bytes
+    Read              :   402.212 ms (  388.476 MBps)
+    Write             :   591.469 ms (  264.173 MBps)
 ```
 
 ## Change Log
@@ -491,7 +491,7 @@ wolfSSL Server Benchmark 16384 bytes
 * Refactor to initialize event prior to operation (in case it finishes before adding to queue).
 * Fixes issues with AES GCM decrypt that can corrupt up to authTag bytes at end of output buffer provided.
 * Optimize the Hmac struct to replace keyRaw with ipad.
-* Enhancement to allow re-use of the symmetric context for ciphers.
+* Enhancement to allow reuse of the symmetric context for ciphers.
 * Fixes for QuickAssist (QAT) multi-threading. Fix to not set return code until after callback cleanup.
 * Disable thread binding to specific CPU by default (enabled now with `WC_ASYNC_THREAD_BIND`).
 * Added optional define `QAT_USE_POLLING_CHECK ` to have only one thread polling at a time (not required and doesn't improve performance).
@@ -507,48 +507,48 @@ wolfSSL Server Benchmark 16384 bytes
 ### wolfSSL Async Release v3.11.0 (05/05/2017)
 
 * Fixes for Cavium Nitrox III/V.
-	- Fix with possible crash when using a request Id that is already complete, due to partial submissions not marking event done.
-	- Improvements to max buffer lengths.
-	- Fixes to handle various return code patterns with CNN55XX-SDK.
-	- All Nitrox V tests and benchmarks pass. Bench: RSA 2048-bit public 336,674 ops/sec and private (CRT) 66,524 ops/sec.
+    - Fix with possible crash when using a request Id that is already complete, due to partial submissions not marking event done.
+    - Improvements to max buffer lengths.
+    - Fixes to handle various return code patterns with CNN55XX-SDK.
+    - All Nitrox V tests and benchmarks pass. Bench: RSA 2048-bit public 336,674 ops/sec and private (CRT) 66,524 ops/sec.
 
 * Intel QuickAssist support and various async fixes/improvements:
     - Added support for Intel QuickAssist v1.6 driver with QuickAssist 8950 hardware
-	- Added QAE memory option to use static memory list instead of dynamic list using `USE_QAE_STATIC_MEM`.
-	- Added tracking of deallocs and made the values signed long.
-	- Improved code for wolf header check and expanded to 16-byte alignment for performance improvement with TLS.
-	- Added ability to override limit dev access parameters and all configurable QAT fields.
-	- Added async simulator tests for DH, DES3 CBC and AES CBC/GCM.
-	- Rename AsyncCryptDev to WC_ASYNC_DEV.
-	- Refactor to move WOLF_EVENT into WC_ASYNC_DEV.
-	- Refactor the async struct/enum names to use WC_ naming.
-	- Refactor of the async event->context to use WOLF_EVENT_TYPE_ASYNC_WOLFSSL or WOLF_EVENT_TYPE_ASYNC_WOLFCRYPT to indicate the type of context pointer.
-	- Added flag to WOLF_EVENT which is used to determine if the async complete should call into operation again or goto next `WC_ASYNC_FLAG_CALL_AGAIN`.
-	- Cleanup of the "wolfAsync_DevCtxInit" calls to make sure asyncDev is always cleared if invalid device id is used.
-	- Eliminated WOLFSSL_ASYNC_CRYPT_STATE.
-	- Removed async event type WOLF_EVENT_TYPE_ASYNC_ANY.
-	- Enable the random extra delay option by default for simulator as it helps catch bugs.
-	- Cleanup for async free to also check marker.
-	- Refactor of the async wait and handle to reduce duplicate code.
-	- Added async simulator test for RSA make key.
-	- Added WC_ASYNC_THRESH_NONE to allow bypass of threshold for testing
-	- Added static numbers for the async sim test types, for easier debugging of the “testDev->type” value.
-	- Populate heap hint into asyncDev struct.
-	- Enhancement to cache the asyncDev to improve poll performance.
-	- Added async threading helpers and new wolfAsync_DevOpenThread.
-	- Added WC_NO_ASYNC_THREADING to prevent async threading.
-	- Added new API “wc_AsyncGetNumberOfCpus” for getting number of CPU’s.
-	- Added new “wc_AsyncThreadYield” API.
-	- Added WOLF_ASYNC_MAX_THREADS.
-	- Added new API for wolfAsync_DevCopy.
-	- Fix to make sure an async init failure sets the deviceId to INVALID_DEVID.
-	- Fix for building with async threading support on Mac.
-	- Fix for using simulator so it supports multiple threads.
+    - Added QAE memory option to use static memory list instead of dynamic list using `USE_QAE_STATIC_MEM`.
+    - Added tracking of deallocs and made the values signed long.
+    - Improved code for wolf header check and expanded to 16-byte alignment for performance improvement with TLS.
+    - Added ability to override limit dev access parameters and all configurable QAT fields.
+    - Added async simulator tests for DH, DES3 CBC and AES CBC/GCM.
+    - Rename AsyncCryptDev to WC_ASYNC_DEV.
+    - Refactor to move WOLF_EVENT into WC_ASYNC_DEV.
+    - Refactor the async struct/enum names to use WC_ naming.
+    - Refactor of the async event->context to use WOLF_EVENT_TYPE_ASYNC_WOLFSSL or WOLF_EVENT_TYPE_ASYNC_WOLFCRYPT to indicate the type of context pointer.
+    - Added flag to WOLF_EVENT which is used to determine if the async complete should call into operation again or goto next `WC_ASYNC_FLAG_CALL_AGAIN`.
+    - Cleanup of the "wolfAsync_DevCtxInit" calls to make sure asyncDev is always cleared if invalid device id is used.
+    - Eliminated WOLFSSL_ASYNC_CRYPT_STATE.
+    - Removed async event type WOLF_EVENT_TYPE_ASYNC_ANY.
+    - Enable the random extra delay option by default for simulator as it helps catch bugs.
+    - Cleanup for async free to also check marker.
+    - Refactor of the async wait and handle to reduce duplicate code.
+    - Added async simulator test for RSA make key.
+    - Added WC_ASYNC_THRESH_NONE to allow bypass of threshold for testing
+    - Added static numbers for the async sim test types, for easier debugging of the “testDev->type” value.
+    - Populate heap hint into asyncDev struct.
+    - Enhancement to cache the asyncDev to improve poll performance.
+    - Added async threading helpers and new wolfAsync_DevOpenThread.
+    - Added WC_NO_ASYNC_THREADING to prevent async threading.
+    - Added new API “wc_AsyncGetNumberOfCpus” for getting number of CPU’s.
+    - Added new “wc_AsyncThreadYield” API.
+    - Added WOLF_ASYNC_MAX_THREADS.
+    - Added new API for wolfAsync_DevCopy.
+    - Fix to make sure an async init failure sets the deviceId to INVALID_DEVID.
+    - Fix for building with async threading support on Mac.
+    - Fix for using simulator so it supports multiple threads.
 
 * Moved Intel QuickAssist and Cavium Nitrox III/V code into async repo.
 * Added new WC_ASYNC_NO_* options to allow disabling of individual async algorithms.
-	- New defines are: WC_ASYNC_NO_CRYPT, WC_ASYNC_NO_PKI and WC_ASYNC_NO_HASH.
-	- Additionally each algorithm has a WC_ASYNC_NO_[ALGO] define.
+    - New defines are: WC_ASYNC_NO_CRYPT, WC_ASYNC_NO_PKI and WC_ASYNC_NO_HASH.
+    - Additionally each algorithm has a WC_ASYNC_NO_[ALGO] define.
 
 
 ### wolfSSL Async Release v3.9.8 (07/25/2016)

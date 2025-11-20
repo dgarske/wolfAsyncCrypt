@@ -699,7 +699,8 @@ static int NitroxAesEncrypt(Aes* aes, int aes_algo,
 
         cav_ret = CspEncryptAes(blockMode, aes->asyncDev.nitrox.contextHandle,
             CAVIUM_NO_UPDATE, aes_type,
-            (word16)slen, (byte*)in + offset, out + offset, (byte*)iv, (byte*)key,
+            (word16)slen, (byte*)in + offset, out + offset,
+            (byte*)iv, (byte*)key,
             &aes->asyncDev.nitrox.reqId, aes->asyncDev.nitrox.devId);
     #endif
         ret = NitroxTranslateResponseCode(cav_ret);
@@ -714,7 +715,8 @@ static int NitroxAesEncrypt(Aes* aes, int aes_algo,
     }
 
 #ifdef WOLFSSL_NITROX_DEBUG
-    printf("NitroxAesEncrypt: ret %x (%d), algo %d, in %p, out %p, sz %d, iv %p, aad %p (%d), tag %p\n",
+    printf("NitroxAesEncrypt: ret %x (%d), algo %d, in %p, out %p, sz %d, "
+           "iv %p, aad %p (%d), tag %p\n",
         cav_ret, ret, aes_algo, in, out, offset, iv, aad, aad_len, tag);
 #endif
 
@@ -766,8 +768,8 @@ static int NitroxAesDecrypt(Aes* aes, int aes_algo,
         (void)tag;
 
         cav_ret = CspDecryptAes(blockMode, aes->asyncDev.nitrox.contextHandle,
-            CAVIUM_NO_UPDATE, aes_sz_type,
-            (word16)slen, (byte*)in + offset, out + offset, (byte*)iv, (byte*)key,
+            CAVIUM_NO_UPDATE, aes_sz_type, (word16)slen, (byte*)in + offset,
+            out + offset, (byte*)iv, (byte*)key,
             &aes->asyncDev.nitrox.reqId, aes->asyncDev.nitrox.devId);
     #endif
         ret = NitroxTranslateResponseCode(cav_ret);
@@ -781,7 +783,8 @@ static int NitroxAesDecrypt(Aes* aes, int aes_algo,
     }
 
 #ifdef WOLFSSL_NITROX_DEBUG
-    printf("NitroxAesDecrypt: ret %x (%d), algo %d, in %p, out %p, sz %d, iv %p, aad %p (%d), tag %p\n",
+    printf("NitroxAesDecrypt: ret %x (%d), algo %d, in %p, out %p, sz %d, "
+           "iv %p, aad %p (%d), tag %p\n",
         cav_ret, ret, aes_algo, in, out, offset, iv, aad, aad_len, tag);
 #endif
 
@@ -930,8 +933,8 @@ int NitroxDes3CbcEncrypt(Des3* des3, byte* out, const byte* in, word32 length)
         cav_ret = CspEncrypt3Des(des3->asyncDev.nitrox.devId, blockMode,
             DMA_DIRECT_DIRECT, CAVIUM_SSL_GRP, CAVIUM_DPORT,
             des3->asyncDev.nitrox.contextHandle, FROM_DPTR, FROM_CTX, DES3_CBC,
-            (byte*)des3->devKey, (byte*)des3->reg, (word16)slen, (byte*)in + offset,
-            out + offset, &des3->asyncDev.nitrox.reqId);
+            (byte*)des3->devKey, (byte*)des3->reg, (word16)slen,
+            (byte*)in + offset, out + offset, &des3->asyncDev.nitrox.reqId);
     #else
         cav_ret = CspEncrypt3Des(blockMode,
             des3->asyncDev.nitrox.contextHandle, CAVIUM_NO_UPDATE, (word16)slen,
@@ -978,8 +981,8 @@ int NitroxDes3CbcDecrypt(Des3* des3, byte* out, const byte* in, word32 length)
         cav_ret = CspDecrypt3Des(des3->asyncDev.nitrox.devId, blockMode,
             DMA_DIRECT_DIRECT, CAVIUM_SSL_GRP, CAVIUM_DPORT,
             des3->asyncDev.nitrox.contextHandle, FROM_DPTR, FROM_CTX, DES3_CBC,
-            (byte*)des3->devKey, (byte*)des3->reg, (word16)slen, (byte*)in + offset,
-            out + offset, &des3->asyncDev.nitrox.reqId);
+            (byte*)des3->devKey, (byte*)des3->reg, (word16)slen,
+            (byte*)in + offset, out + offset, &des3->asyncDev.nitrox.reqId);
     #else
         cav_ret = CspDecrypt3Des(blockMode,
             des3->asyncDev.nitrox.contextHandle, CAVIUM_NO_UPDATE, (word16)slen,
@@ -1170,7 +1173,8 @@ int NitroxHmacFinal(Hmac* hmac, byte* hash, word16 hashLen)
 #endif
 
 #ifdef WOLFSSL_NITROX_DEBUG
-    printf("NitroxHmacFinal: ret %x, hash %p, hashLen %d\n", ret, hash, hashLen);
+    printf("NitroxHmacFinal: ret %x, hash %p, hashLen %d\n",
+        ret, hash, hashLen);
 #endif
 
     ret = NitroxTranslateResponseCode(ret);
@@ -1205,8 +1209,8 @@ int NitroxRngGenerateBlock(WC_RNG* rng, byte* output, word32 sz)
             DMA_DIRECT_DIRECT, CAVIUM_SSL_GRP, CAVIUM_DPORT, (word16)slen,
             output + offset, &requestId);
     #else
-        cav_ret = CspRandom(blockMode, (word16)slen, output + offset, &requestId,
-            rng->asyncDev.nitrox.devId);
+        cav_ret = CspRandom(blockMode, (word16)slen, output + offset,
+            &requestId, rng->asyncDev.nitrox.devId);
     #endif
         ret = NitroxTranslateResponseCode(cav_ret);
         if (ret != 0) {
